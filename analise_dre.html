@@ -293,8 +293,8 @@
             </select>
         </div>
         <div class="nav">
-            <a href="index.html" class="btn-nav">🏢 CONSOLIDADO</a>
-            <a href="index_meses.html" class="btn-nav">📅 EVOLUÇÃO</a>
+            <button class="btn-nav" onclick="navTo('index.html')">🏢 CONSOLIDADO</button>
+            <button class="btn-nav" onclick="navTo('index_meses.html')">📅 EVOLUÇÃO</button>
         </div>
     </header>
 
@@ -417,9 +417,22 @@
                         o.textContent = `${c} - ${db.filiais[c]}`;
                         sel.appendChild(o);
                     });
+
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('filial')) sel.value = urlParams.get('filial');
+                    if (urlParams.get('ano')) document.getElementById('sel-ano').value = urlParams.get('ano');
+                    if (urlParams.get('mes')) document.getElementById('sel-mes').value = urlParams.get('mes');
+
                     up();
                     document.getElementById('l').style.display = 'none';
                 } catch (e) { console.error(e); }
+            }
+
+            function navTo(page) {
+                const filial = document.getElementById('sel-filial').value;
+                const ano = document.getElementById('sel-ano').value;
+                const mes = document.getElementById('sel-mes').value;
+                window.location.href = `${page}?filial=${filial}&ano=${ano}&mes=${mes}`;
             }
 
             function f(v) { return "R$ " + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }); }

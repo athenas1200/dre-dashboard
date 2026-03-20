@@ -312,10 +312,8 @@
                     </div>
                 </div>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-nav" onclick="window.location.href='index_meses.html'">📅 Evolução
-                        Mensal</button>
-                    <button class="btn-nav" style="background:#7c3aed;"
-                        onclick="window.location.href='analise_dre.html'">🧠 Análise DRE</button>
+                    <button class="btn-export" style="background:#1e40af;" onclick="navTo('index_meses.html')">📅 Mês a Mês</button>
+                <button class="btn-export" style="background:#7c3aed;" onclick="navTo('analise_dre.html')">🧠 Análise DRE</button>
                     <button class="btn-export" onclick="exportToExcel()">📥 Exportar Excel</button>
                 </div>
             </div>
@@ -375,13 +373,29 @@
                     opt.textContent = `${cod} - ${db.filiais[cod]}`;
                     sel.appendChild(opt);
                 });
-                // Define padrões: Filial CONSOLIDADO, Ano Todos e Mês Todos
+                // Define padrões
                 sel.value = "todas";
                 document.getElementById('sel-ano').value = "todos";
                 document.getElementById('sel-mes').value = "todos";
+                
+                // Puxa da URL se houver
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('filial')) sel.value = params.get('filial');
+                if (params.get('ano')) {
+                    const pAno = params.get('ano');
+                    document.getElementById('sel-ano').value = (pAno === 'atual' ? '2026' : (pAno === 'anterior' ? '2025' : pAno));
+                }
+                if (params.get('mes')) document.getElementById('sel-mes').value = params.get('mes');
 
                 renderDashboard();
             } catch (e) { console.error(e); }
+        }
+        
+        function navTo(page) {
+            const filial = document.getElementById('sel').value;
+            const ano = document.getElementById('sel-ano').value;
+            const mes = document.getElementById('sel-mes').value;
+            window.location.href = `${page}?filial=${filial}&ano=${ano}&mes=${mes}`;
         }
 
         function toggle(btn, parentId) {
@@ -420,7 +434,7 @@
             let headHtml = `<tr><th style="min-width:400px; left:0;">Descrição das Contas</th>`;
             filiaisToShow.forEach(c => {
                 const fName = db.filiais[c] ? `${c} - ${db.filiais[c]}` : c;
-                headHtml += `<th class="th-filial" onclick="window.location.href='index_meses.html?filial=${c}&periodo=atual'">${fName}</th>`;
+                headHtml += `<th class="th-filial" onclick="window.location.href='index_meses.html?filial=${c}&ano=${ano}&mes=${mes}'">${fName}</th>`;
             });
             headHtml += `<th>TOTAL</th><th class="col-perc">% RL</th></tr>`;
             document.getElementById('table-head').innerHTML = headHtml;

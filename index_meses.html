@@ -326,10 +326,8 @@
                 </div>
             </div>
             <div style="display:flex;gap:10px;margin-left:auto;">
-                <button class="btn-export" style="background:#1e40af;" onclick="window.location.href='index.html'">🏢
-                    Consolidado Filiais</button>
-                <button class="btn-export" style="background:#7c3aed;"
-                    onclick="window.location.href='analise_dre.html'">🧠 Análise DRE</button>
+                <button class="btn-export" style="background:#1e40af;" onclick="navTo('index.html')">🏢 Consolidado Filiais</button>
+                <button class="btn-export" style="background:#7c3aed;" onclick="navTo('analise_dre.html')">🧠 Análise DRE</button>
                 <button class="btn-export" onclick="exportToExcel()">📥 Exportar Excel</button>
             </div>
         </div>
@@ -400,11 +398,23 @@
 
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('filial')) selF.value = urlParams.get('filial');
-                if (urlParams.get('periodo')) document.getElementById('sel-periodo').value = urlParams.get('periodo');
+                if (urlParams.get('ano')) {
+                    const pAno = urlParams.get('ano');
+                    document.getElementById('sel-periodo').value = (pAno === '2026' ? 'atual' : (pAno === '2025' ? 'anterior' : pAno));
+                }
+                if (urlParams.get('mes')) document.getElementById('sel-mes').value = urlParams.get('mes');
 
                 renderDashboard();
                 document.getElementById('loading-overlay').style.display = 'none';
             } catch (e) { console.error(e); }
+        }
+
+        function navTo(page) {
+            const filial = document.getElementById('sel-filial').value;
+            const per = document.getElementById('sel-periodo').value;
+            const ano = per === 'atual' ? '2026' : (per === 'anterior' ? '2025' : per);
+            const mes = document.getElementById('sel-mes').value;
+            window.location.href = `${page}?filial=${filial}&ano=${ano}&mes=${mes}`;
         }
 
         function toggle(btn, parentId) {
