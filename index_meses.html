@@ -497,7 +497,7 @@
                     rowHtml += `<td class="${vTotal < -0.01 ? 'val-neg' : ''}">${vTotal ? vTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}</td>`;
                 });
 
-                const perc = rlUltimo ? ((id in (dadosF[meses[meses.length - 1]?.includes('2026') ? 'atual' : 'anterior']?.[meses[meses.length - 1]] || {}) ? (dadosF[meses[meses.length - 1]?.includes('2026') ? 'atual' : 'anterior']?.[meses[meses.length - 1]]?.[id] || 0) : 0) / rlUltimo * 100).toFixed(1) : '0.0';
+                // A porcentagem real é calculada a seguir usando vForPerc
                 let vForPerc = 0;
                 if (meses.length) {
                     const m_last = meses[meses.length - 1];
