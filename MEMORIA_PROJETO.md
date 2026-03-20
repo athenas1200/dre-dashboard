@@ -97,9 +97,8 @@ As linhas com `Plano3 != 0` são detalhamentos expansíveis, enquanto `Plano3 ==
 
 O projeto está hospedado no GitHub Pages sob a conta `athenas1200`.
 
-- **GitHub Pages:** [https://athenas1200.github.io/dre-dashboard/](https://athenas1200.github.io/dre-dashboard/)
-- **Hostgator 1:** [https://processopro.net/ro_x1z2/dre/index.html](https://processopro.net/ro_x1z2/dre/index.html)
-- **Hostgator 2:** [http://consultoriasoft.com.br/dre/index.html](http://consultoriasoft.com.br/dre/index.html)
+- **Hostgator 1:** [https://processopro.net/dre/index.html](https://processopro.net/dre/index.html)
+- **Hostgator 2:** [https://consultoriasoft.com.br/dre/index.html](https://consultoriasoft.com.br/dre/index.html)
 
 
 ### 7.2 Atualização de Dados
