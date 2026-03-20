@@ -418,7 +418,10 @@
 
             // Render Head
             let headHtml = `<tr><th style="min-width:400px; left:0;">Descrição das Contas</th>`;
-            filiaisToShow.forEach(c => headHtml += `<th class="th-filial" onclick="window.location.href='index_meses.html?filial=${c}&periodo=atual'">${db.filiais[c] || c}</th>`);
+            filiaisToShow.forEach(c => {
+                const fName = db.filiais[c] ? `${c} - ${db.filiais[c]}` : c;
+                headHtml += `<th class="th-filial" onclick="window.location.href='index_meses.html?filial=${c}&periodo=atual'">${fName}</th>`;
+            });
             headHtml += `<th>TOTAL</th><th class="col-perc">% RL</th></tr>`;
             document.getElementById('table-head').innerHTML = headHtml;
 
