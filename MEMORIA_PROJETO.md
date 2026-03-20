@@ -146,7 +146,21 @@ O deploy final da versão estabilizada via FTP diretamente do computador local d
 
 ---
 
-## 9. CREDENCIAIS E ACESSOS (CONFIDENCIAL)
+## 9. ROADMAP FUTURO: MOTOR DE DIAGNÓSTICO GERENCIAL (IA no Frontend)
+
+Em desenvolvimento (Planejado):
+Implementação de um motor "Consultor de IA Financeira" nativo no `analise_dre.html`.
+A proposta é ler os dados em tempo real e gerar 11 apontamentos textuais dinâmicos em linguagem natural:
+1. Receita, despesas e lucro consolidado na tela.
+2. KPIs Analíticos (Operacional vs Líquido).
+3. Avaliação Horizontal/Vertical das linhas de maior impacto.
+4. Cálculo automático de Break-Even Point (Ponto de Equilíbrio).
+5. Detectores de Anomalia (Aviso visual para quedas atípicas de margem).
+6. Recomendações e Plano de Ação (registo "Saudável", "Atenção", "Risco").
+
+---
+
+## 10. CREDENCIAIS E ACESSOS (CONFIDENCIAL)
 
 Abaixo estão os acessos configurados para a manutenção do ecossistema DRE:
 
