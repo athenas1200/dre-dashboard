@@ -322,6 +322,7 @@
             <div class="controls-row">
                 <span class="ctrl-label">Mês:</span>
                 <select class="ctrl-select" id="sel-mes" onchange="renderDashboard()">
+                    <option value="todos">Todos os Meses</option>
                     <option value="jan">Janeiro</option>
                     <option value="fev" selected>Fevereiro</option>
                     <option value="mar">Março</option>
@@ -337,6 +338,7 @@
                 </select>
                 <span class="ctrl-label">Ano:</span>
                 <select class="ctrl-select" id="sel-ano" onchange="renderDashboard()">
+                    <option value="todos">Todos (2025+2026)</option>
                     <option value="2025">2025</option>
                     <option value="2026" selected>2026</option>
                 </select>
@@ -373,6 +375,11 @@
                     opt.textContent = `${cod} - ${db.filiais[cod]}`;
                     sel.appendChild(opt);
                 });
+                // Define padrões: Filial CONSOLIDADO, Ano Todos e Mês Todos
+                sel.value = "todas";
+                document.getElementById('sel-ano').value = "todos";
+                document.getElementById('sel-mes').value = "todos";
+
                 renderDashboard();
             } catch (e) { console.error(e); }
         }
@@ -390,9 +397,22 @@
             const mes = document.getElementById('sel-mes').value;
             const ano = document.getElementById('sel-ano').value;
             const fFil = document.getElementById('sel-filial').value;
-            const periodKey = ano === '2025' ? 'anterior' : 'atual';
-            const periodName = `${mes} ${ano}`;
-            document.getElementById('pill-periodo').innerText = periodName.toUpperCase();
+
+            const periodKeys = ano === 'todos' ? ['anterior', 'atual'] : [ano === '2025' ? 'anterior' : 'atual'];
+            const mesesList = mes === 'todos' ? ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'] : [mes];
+            
+            const periods = [];
+            periodKeys.forEach(pk => {
+                const yearPrefix = pk === 'anterior' ? '2025' : '2026';
+                mesesList.forEach(m => {
+                    periods.push({ pk, pName: `${m} ${yearPrefix}` });
+                });
+            });
+
+            const displayPeriod = mes === 'todos' && ano === 'todos' ? 'TODOS OS PERÍODOS' : 
+                               (mes === 'todos' ? `TODOS OS MESES - ${ano}` : 
+                               (ano === 'todos' ? `${mes.toUpperCase()} (2025+2026)` : `${mes} ${ano}`));
+            document.getElementById('pill-periodo').innerText = displayPeriod.toUpperCase();
 
             const filiaisToShow = fFil === 'todas' ? Object.keys(db.filiais).sort((a, b) => parseInt(a) - parseInt(b)) : [fFil];
 
@@ -417,7 +437,11 @@
             const rlLine = db.estrutura_dre.find(e => e.ordem == 3 || e.descritivo.includes("Receita Líquida"));
             if (rlLine) {
                 totalRL = 0;
-                filiaisToShow.forEach(c => totalRL += (db.dados[c]?.[periodKey]?.[periodName]?.[rlLine.ordem] || 0));
+                filiaisToShow.forEach(c => {
+                    periods.forEach(p => {
+                        totalRL += (db.dados[c]?.[p.pk]?.[p.pName]?.[rlLine.ordem] || 0);
+                    });
+                });
                 if (totalRL === 0) totalRL = 1;
             }
 
@@ -436,7 +460,10 @@
 
                 let rTotal = 0;
                 filiaisToShow.forEach(c => {
-                    const v = db.dados[c]?.[periodKey]?.[periodName]?.[id] || 0;
+                    let v = 0;
+                    periods.forEach(p => {
+                        v += db.dados[c]?.[p.pk]?.[p.pName]?.[id] || 0;
+                    });
                     rTotal += v;
                     rowHtml += `<td class="${v < -0.01 ? 'val-neg' : ''}">${v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}</td>`;
                 });
@@ -457,7 +484,54 @@
         }
 
         window.onload = init;
-        function exportToExcel() { XLSX.writeFile(XLSX.utils.table_to_sheet(document.querySelector(".exec-table")), "DRE_Consolidado.xlsx"); }
+        function exportToExcel() {
+            const table = document.querySelector(".exec-table");
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.table_to_sheet(table);
+
+            // Estilos
+            const headerStyle = { fill: { fgColor: { rgb: "0F172A" } }, font: { color: { rgb: "FFFFFF" }, bold: true }, alignment: { horizontal: "center" }, border: { bottom: { style: "medium", color: { rgb: "14B8A6" } } } };
+            const stStyle = { fill: { fgColor: { rgb: "E0F2FE" } }, font: { bold: true, color: { rgb: "0369A1" } } };
+            const groupStyle = { fill: { fgColor: { rgb: "F8FAFC" } }, font: { bold: true } };
+            const percStyle = { fill: { fgColor: { rgb: "F0FDF4" } }, font: { color: { rgb: "166534" }, bold: true } };
+            const negFont = { color: { rgb: "DC2626" } };
+
+            const rows = table.querySelectorAll("tr");
+            rows.forEach((row, rIdx) => {
+                const isHeader = row.parentElement.tagName === "THEAD";
+                const isST = row.classList.contains("row-st");
+                const isGroup = row.classList.contains("row-group");
+
+                const cells = row.querySelectorAll("th, td");
+                cells.forEach((cell, cIdx) => {
+                    const addr = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
+                    if (!ws[addr]) return;
+
+                    // Estilo Base
+                    ws[addr].s = { 
+                        alignment: { vertical: "center", horizontal: cIdx === 0 ? "left" : "right" },
+                        font: { sz: 10 }
+                    };
+
+                    if (isHeader) {
+                        ws[addr].s = { ...ws[addr].s, ...headerStyle };
+                    } else {
+                        if (isST) ws[addr].s = { ...ws[addr].s, ...stStyle };
+                        else if (isGroup) ws[addr].s = { ...ws[addr].s, ...groupStyle };
+
+                        if (cell.classList.contains("val-neg")) ws[addr].s.font = { ...ws[addr].s.font, ...negFont };
+                        if (cell.classList.contains("col-perc")) ws[addr].s = { ...ws[addr].s, ...percStyle };
+                    }
+                });
+            });
+
+            // Largura de Colunas
+            ws['!cols'] = [{ wch: 45 }];
+            for(let i=1; i<20; i++) ws['!cols'].push({ wch: 15 });
+
+            XLSX.utils.book_append_sheet(wb, ws, "DRE");
+            XLSX.writeFile(wb, "DRE_Consolidado_Estilizado.xlsx");
+        }
     </script>
 </body>
 

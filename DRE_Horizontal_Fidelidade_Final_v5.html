@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>DRE Horizontal - Fevereiro 2026 v5</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap');
+        @page { size: landscape; margin: 5mm; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 15px; min-height: 100vh; }
+        .container { max-width: 1550px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 30px 60px rgba(0,0,0,0.4); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 25px; text-align: center; }
+        .header h1 { font-size: 1.8em; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .period { display: inline-block; margin-top: 10px; padding: 6px 20px; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 0.9em; font-weight: 600; }
+        .dre-table { width: 100%; border-collapse: collapse; font-size: 0.82em; }
+        .dre-table th { background: #0f172a; color: white; padding: 12px; text-align: right; font-weight: 700; text-transform: uppercase; border-bottom: 2px solid #334155; }
+        .dre-table th:first-child { text-align: left; width: 350px; }
+        .dre-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 600; font-family: 'Courier New', monospace; font-size: 0.95em; color: #1e293b; }
+        .dre-table td:first-child { text-align: left; font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 0.9em; color: #334155; }
+        .category-header { background: #f8fafc; font-weight: 700 !important; border-left: 4px solid #64748b; }
+        .sub-item { padding-left: 25px !important; color: #64748b; font-weight: 400 !important; font-size: 0.85em; }
+        .total-destaque { background: #fffcf0; color: #92400e; font-weight: 700 !important; border-left: 4px solid #f59e0b; }
+        .resultado { background: #eff6ff; color: #1e40af; font-weight: 700 !important; border-left: 4px solid #2563eb; }
+        .final-result { background: #fef2f2; color: #991b1b; border-left: 4px solid #dc2626; font-size: 1.1em; font-weight: 800; }
+        .section-header { background: #1e293b; color: white; padding: 10px; font-size: 0.8em; font-weight: 700; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; border: 1px solid #ddd; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Demonstração do Resultado (DRE) - 6 Filiais</h1>
+            <div class="period">Fevereiro 2026 | Consolidação Horizontal Fidelidade Total</div>
+        </div>
+        <table class="dre-table">
+            <thead>
+                <tr>
+                    <th>Descrição das Contas</th>
+                    <th>Filial 6</th>
+                    <th>Filial 7</th>
+                    <th>Filial 9</th>
+                    <th>Filial 14</th>
+                    <th>Filial 15</th>
+                    <th>Filial 26</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="category-header"><td class="">RECEITA BRUTA DE VENDAS</td><td>24.744,91</td><td>254.550,83</td><td>279.664,22</td><td>106.340,62</td><td>226.293,02</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">(-) Impostos (ICMS/PIS/COFINS/FOT)</td><td>-</td><td>-14.005,71</td><td>-19.522,38</td><td>-</td><td>-5.347,30</td><td>-</td></tr><tr class="total-destaque"><td class="">(=) RECEITA LÍQUIDA</td><td>-</td><td>240.545,12</td><td>260.141,84</td><td>106.340,62</td><td>220.945,72</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">(-) CMV (MMA/TMCA/Estq/Transf)</td><td>-26.824,72</td><td>-15.621,59</td><td>-15.141,25</td><td>-7.583,88</td><td>-40.158,93</td><td>-2.401,55</td></tr><tr class="resultado"><td class="">(=) LUCRO BRUTO</td><td>-26.824,72</td><td>256.166,71</td><td>245.000,59</td><td>98.756,74</td><td>180.786,79</td><td>-2.401,55</td></tr><tr class="section-header"><td colspan="7">DESPESAS OPERACIONAIS</td></tr><tr class="category-header"><td class="">Despesas com Pessoal</td><td>-9,65</td><td>-402,69</td><td>-</td><td>-</td><td>-</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Folha (Salários/Férias/Outros)</td><td>-10.482,49</td><td>-24.991,82</td><td>-27.804,73</td><td>-15.989,61</td><td>-22.793,25</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Benefícios (Odonto/Saúde/VT)</td><td>-12.891,81</td><td>-23.393,69</td><td>-8.790,95</td><td>-2.560,00</td><td>-10.847,64</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Encargos (FGTS/Sindical)</td><td>-</td><td>-1.000,00</td><td>-40,00</td><td>-3.868,26</td><td>-</td><td>-</td></tr><tr class="category-header"><td class="">Despesas Administrativas</td><td>-74.091,69</td><td>-214.946,33</td><td>-18.038,77</td><td>-32.353,95</td><td>-26.984,12</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Locação (Aluguel/Cond/IPTU)</td><td>-36.491,50</td><td>-38.410,49</td><td>-302,78</td><td>-17.981,69</td><td>-15.265,85</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Serviços (Contábil/Adv/Seg/Dedet)</td><td>-4.395,99</td><td>-17.288,57</td><td>-5.386,45</td><td>-2.442,48</td><td>-7.350,62</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">TI (Consultoria/Servidor/Equip)</td><td>-361,25</td><td>-55.430,06</td><td>-3.446,41</td><td>-361,25</td><td>-446,41</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Telefonia (Fixo/Móvel/Internet)</td><td>-700,00</td><td>-12.572,21</td><td>-293,61</td><td>-909,61</td><td>-1.291,84</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Impostos (IPVA/IPTU)</td><td>-2.541,48</td><td>-80.479,00</td><td>-2.036,32</td><td>-82,09</td><td>-261,35</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Materiais (Escritório/Limp/Uniform)</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-755,78</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Manutenção (Loja/Ar/Eletrica)</td><td>-24.778,53</td><td>-1.744,44</td><td>-762,95</td><td>-1.056,02</td><td>-617,35</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">Frota (Frete/IPVA/Comb/Veíc)</td><td>-</td><td>-1.970,55</td><td>-4.821,01</td><td>-187,00</td><td>-325,75</td><td>-</td></tr><tr class="category-header"><td class="">Despesas Comerciais</td><td>-4.738,94</td><td>-5.801,51</td><td>-232,94</td><td>-8.407,57</td><td>-189,18</td><td>-</td></tr><tr class="category-header"><td class="">Despesas Caixa/Outras</td><td>-84,00</td><td>-1.249,50</td><td>-756,30</td><td>-869,24</td><td>-480,00</td><td>-</td></tr><tr class="resultado"><td class="">TOTAL DESPESAS OPERACIONAIS</td><td>-97.475,64</td><td>-264.734,53</td><td>-54.674,45</td><td>-54.771,81</td><td>-60.625,01</td><td>-</td></tr><tr class="total-destaque"><td class="">(=) LUCRO OPERACIONAL (EBIT)</td><td>-124.300,36</td><td>-8.567,82</td><td>190.326,14</td><td>43.984,93</td><td>120.161,78</td><td>-</td></tr><tr class="expand-row"><td class="sub-item">(-) Despesas Financeiras</td><td>-5.459,49</td><td>-7.816,60</td><td>-5.669,23</td><td>-2.735,00</td><td>-3.121,57</td><td>-</td></tr><tr class="final-result"><td class="">(=) RESULTADO LÍQUIDO</td><td>-118.840,87</td><td>-16.384,42</td><td>184.656,91</td><td>41.249,93</td><td>117.040,21</td><td>-2.401,55</td></tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

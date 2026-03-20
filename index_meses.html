@@ -340,7 +340,7 @@
             <select class="ctrl-select ctrl-select-sm" id="sel-periodo" onchange="renderDashboard()">
                 <option value="todos">Todos (2025+2026)</option>
                 <option value="anterior">2025</option>
-                <option value="atual">2026</option>
+                <option value="atual" selected>2026</option>
             </select>
             <span class="ctrl-label">Mês:</span>
             <select class="ctrl-select ctrl-select-sm" id="sel-mes" onchange="renderDashboard()">
@@ -380,11 +380,24 @@
                 const res = await fetch('dre_meses.json?v=' + Date.now());
                 globalData = await res.json();
                 const selF = document.getElementById('sel-filial');
+                
+                // Adiciona opção CONSOLIDADO
+                const optT = document.createElement('option'); optT.value = 'todas'; 
+                optT.textContent = 'CONSOLIDADO (TODAS AS LOJAS)';
+                selF.appendChild(optT);
+
                 Object.keys(globalData.filiais).sort((a, b) => parseInt(a) - parseInt(b)).forEach(c => {
                     const opt = document.createElement('option'); opt.value = c;
                     opt.textContent = `${c} – ${globalData.filiais[c]}`;
                     selF.appendChild(opt);
                 });
+                
+                // Padrão: CONSOLIDADO, Ano 2026, Mês Atual
+                selF.value = "todas";
+                document.getElementById('sel-periodo').value = "atual";
+                const mesAtual = MESES_PT[new Date().getMonth()];
+                document.getElementById('sel-mes').value = mesAtual;
+
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.get('filial')) selF.value = urlParams.get('filial');
                 if (urlParams.get('periodo')) document.getElementById('sel-periodo').value = urlParams.get('periodo');
@@ -407,20 +420,24 @@
             const cod = document.getElementById('sel-filial').value;
             const period = document.getElementById('sel-periodo').value;
             const mesFilter = document.getElementById('sel-mes').value;
-            const dadosF = globalData.dados[cod];
-            if (!dadosF) return;
+            
+            // Define quais filiais processar
+            const fids = cod === 'todas' ? Object.keys(globalData.dados) : [cod];
+            const sampleFid = fids[0];
+            const dadosSample = globalData.dados[sampleFid];
+            if (!dadosSample) return;
 
             let meses = [];
             const periods = period === 'todos' ? ['anterior', 'atual'] : [period];
             periods.forEach(p => {
-                const ms = Object.keys(dadosF[p] || {}).sort((a, b) => {
+                const ms = Object.keys(dadosSample[p] || {}).sort((a, b) => {
                     const [m1, a1] = a.split(' '); const [m2, a2] = b.split(' ');
                     return (parseInt(a1) * 12 + MESES_PT.indexOf(m1)) - (parseInt(a2) * 12 + MESES_PT.indexOf(m2));
                 });
                 ms.forEach(m => { if (mesFilter === 'todos' || m.startsWith(mesFilter)) meses.push(m); });
             });
 
-            document.getElementById('pill-filial').textContent = `${cod} – ${globalData.filiais[cod]}`;
+            document.getElementById('pill-filial').textContent = cod === 'todas' ? 'CONSOLIDADO (TODAS AS LOJAS)' : `${cod} – ${globalData.filiais[cod]}`;
             document.getElementById('pill-meses').textContent = `${meses.length} Meses`;
 
             let headHtml = `<tr><th rowspan="1">Descrição das Contas</th>`;
@@ -446,10 +463,16 @@
             for (let i = meses.length - 1; i >= 0; i--) {
                 const m = meses[i];
                 const p = m.includes('2026') ? 'atual' : 'anterior';
-                const v = dadosF[p]?.[m]?.[ORD_RL] || 0;
-                if (Math.abs(v) > 0.01) {
-                    rlUltimo = v;
-                    resUltimo = dadosF[p]?.[m]?.[ORD_RES] || 0;
+                
+                let mRL = 0, mRes = 0;
+                fids.forEach(fid => {
+                    mRL += (globalData.dados[fid]?.[p]?.[m]?.[ORD_RL] || 0);
+                    mRes += (globalData.dados[fid]?.[p]?.[m]?.[ORD_RES] || 0);
+                });
+
+                if (Math.abs(mRL) > 0.01) {
+                    rlUltimo = mRL;
+                    resUltimo = mRes;
                     break;
                 }
             }
@@ -467,17 +490,21 @@
 
                 meses.forEach(m => {
                     const pCell = m.includes('2026') ? 'atual' : 'anterior';
-                    const v = dadosF[pCell]?.[m]?.[id] || 0;
-                    rowHtml += `<td class="${v < -0.01 ? 'val-neg' : ''}">${v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}</td>`;
+                    let vTotal = 0;
+                    fids.forEach(fid => {
+                        vTotal += (globalData.dados[fid]?.[pCell]?.[m]?.[id] || 0);
+                    });
+                    rowHtml += `<td class="${vTotal < -0.01 ? 'val-neg' : ''}">${vTotal ? vTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}</td>`;
                 });
 
                 const perc = rlUltimo ? ((id in (dadosF[meses[meses.length - 1]?.includes('2026') ? 'atual' : 'anterior']?.[meses[meses.length - 1]] || {}) ? (dadosF[meses[meses.length - 1]?.includes('2026') ? 'atual' : 'anterior']?.[meses[meses.length - 1]]?.[id] || 0) : 0) / rlUltimo * 100).toFixed(1) : '0.0';
-                // Use a safer way for column percentage
                 let vForPerc = 0;
                 if (meses.length) {
                     const m_last = meses[meses.length - 1];
                     const p_last = m_last.includes('2026') ? 'atual' : 'anterior';
-                    vForPerc = dadosF[p_last]?.[m_last]?.[id] || 0;
+                    fids.forEach(fid => {
+                        vForPerc += (globalData.dados[fid]?.[p_last]?.[m_last]?.[id] || 0);
+                    });
                 }
                 const realPerc = rlUltimo ? (vForPerc / rlUltimo * 100).toFixed(1) : '0.0';
 
@@ -494,7 +521,48 @@
         }
 
         window.onload = init;
-        function exportToExcel() { XLSX.writeFile(XLSX.utils.table_to_sheet(document.querySelector(".exec-table")), "DRE_Evolucao.xlsx"); }
+        function exportToExcel() {
+            const table = document.querySelector(".exec-table");
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.table_to_sheet(table);
+
+            const headerStyle = { fill: { fgColor: { rgb: "0F172A" } }, font: { color: { rgb: "FFFFFF" }, bold: true }, alignment: { horizontal: "center" }, border: { bottom: { style: "medium", color: { rgb: "14B8A6" } } } };
+            const stStyle = { fill: { fgColor: { rgb: "E0F2FE" } }, font: { bold: true, color: { rgb: "0369A1" } } };
+            const groupStyle = { fill: { fgColor: { rgb: "F8FAFC" } }, font: { bold: true } };
+            const negFont = { color: { rgb: "991B1B" } };
+
+            const rows = table.querySelectorAll("tr");
+            rows.forEach((row, rIdx) => {
+                const isHeader = row.parentElement.tagName === "THEAD";
+                const isST = row.classList.contains("row-st");
+                const isGroup = row.classList.contains("row-group");
+
+                const cells = row.querySelectorAll("th, td");
+                cells.forEach((cell, cIdx) => {
+                    const addr = XLSX.utils.encode_cell({ r: rIdx, c: cIdx });
+                    if (!ws[addr]) return;
+
+                    ws[addr].s = { 
+                        alignment: { vertical: "center", horizontal: cIdx === 0 ? "left" : "right" },
+                        font: { sz: 10 }
+                    };
+
+                    if (isHeader) {
+                        ws[addr].s = { ...ws[addr].s, ...headerStyle };
+                    } else {
+                        if (isST) ws[addr].s = { ...ws[addr].s, ...stStyle };
+                        else if (isGroup) ws[addr].s = { ...ws[addr].s, ...groupStyle };
+                        if (cell.classList.contains("val-neg")) ws[addr].s.font = { ...ws[addr].s.font, ...negFont };
+                    }
+                });
+            });
+
+            ws['!cols'] = [{ wch: 45 }];
+            for(let i=1; i<30; i++) ws['!cols'].push({ wch: 15 });
+
+            XLSX.utils.book_append_sheet(wb, ws, "Evolucao_Mensal");
+            XLSX.writeFile(wb, "DRE_Evolucao_Estilizado.xlsx");
+        }
     </script>
 </body>
 
