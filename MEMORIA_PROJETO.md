@@ -61,8 +61,17 @@ python -m http.server 8000
 ## 4. MELHORIAS E NAVEGAÇÃO (20/03/2026)
 
 ### 4.1 Filtros Dinâmicos
+- **Consolidado (`index.html`)**: Agora permite selecionar "Todos os Meses" e/ou "Todos os Anos" (2025+2026), renderizando automaticamente uma soma consolidada flexível com o layout `DRE Consolidado Estilizado`. Por padrão, ele sempre é aberto na seleção "Mês: Todos, Ano: Todos, Filial: Consolidadas".
+- **Evolução Mensal (`index_meses.html`)**: Inicia apontando sempre para a Filial Consolidada, no Ano atual e Mês corrente.
 
-O `index.html` agora permite selecionar qualquer Mês e Ano. O dashboard re-agrega os valores de todas as filiais instantaneamente via JavaScript, eliminando a dependência do antigo `gerar_dre.py` e `todas_filiais.xls`.
+### 4.2 Exportação Nativa Estilizada
+Os relatórios agora exportam o `.xlsx` completo (usando `xlsx-js-style` via CDN). Estilização inclui cabeçalhos azuis/teals, negritos para níveis agrupadores, percentuais calculados e números negativos renderizados em font vermelha nativa no Excel.
+
+### 4.3 Metas no Gráfico de Pareto (Análise DRE)
+No dashboard executivo `analise_dre.html`, o gráfico Pareto 80/20 agora apresenta duas "linhas de corte" traçadas:
+- **Meta Venda** (Tracejado Laranja/Amarelo)
+- **Meta Lucro** (Tracejado Verde Escuro)
+*Observação técnica:* Como não existe uma tabela de metas nativa no arquivo `MESES/`, as variáveis `META_VENDA = 300000` e `META_LUCRO = 50000` estão declaradas no Javascript localmente. Apenas abra `analise_dre.html` em um editor e modifique os valores numéricos onde consta "Definição das Metas".
 
 ### 4.2 Deep Linking (Navegação Inteligente)
 
@@ -121,18 +130,19 @@ O projeto é **100% estático** (HTML/JS/JSON), o que significa que pode ser ins
 
 ---
 
-## 8. ATUALIZAÇÃO DIÁRIA (PASSO A PASSO)
+### 8.1 Opção de Envio Rápido via Script `.bat`
+Para atualizar o JSON gerado localmente pelas planilhas para o GitHub:
+1. Copie os arquivos `.xls` recém baixados do sistema para a pasta `C:\dre\Meses`.
+2. Clique duplo em `enviar_dados.bat`. Ele gera um novo banco e empurra para a Origin. *(Requer substituição de Token no código caso você clonar o repo num notebook novo)*.
+3. No cPanel de cada Hostgator, acesse o botão "Update from Remote" na aba "Git™ Version Control".
 
-Para atualizar o dashboard com novos dados da pasta `Meses/`, siga este processo simples:
-
-1. **Copie os novos arquivos XLS** para a pasta `C:\dre\Meses`.
-2. **Execute o arquivo `enviar_dados.bat`** (clique duplo).
-   - Ele vai gerar o novo JSON e enviar para o GitHub automaticamente.
-3. **No Hostgator (cPanel):**
-   - Acesse **Git™ Version Control**.
-   - Clique em **Manage** no repositório `dre-dashboard`.
-   - Clique na aba **Pull or Deploy**.
-   - Clique no botão azul **Update** para baixar os dados novos no site oficial.
+### 8.2 Opção Direta via FTP (Recomendado para Emergências)
+O deploy final da versão estabilizada via FTP diretamente do computador local dispensa o Git.
+- Use FileZilla ou PowerShell.
+- **Host**: `consultoriasoft.com.br`
+- **Porta**: 21
+- **Diretório Remoto**: `/public_html/dre/`
+- Transfira apenas os arquivos `*.html` e `dre_meses.json`.
 
 ---
 
