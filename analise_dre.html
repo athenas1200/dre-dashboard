@@ -486,6 +486,12 @@
             }
 
             function rd(lbs, rl, res, fix, vAr, mtx, p) {
+                // Definição das Metas (Exemplo padrão, pode ser ajustado)
+                const META_VENDA = 300000;
+                const META_LUCRO = 50000;
+
+                const metasVendaData = p.map(() => META_VENDA);
+                const metasLucroData = p.map(() => META_LUCRO);
                 if (cs.e) cs.e.destroy();
                 cs.e = new Chart(document.getElementById('cEvo'), {
                     type: 'line', data: {
@@ -497,7 +503,45 @@
                 });
 
                 if (cs.p) cs.p.destroy();
-                cs.p = new Chart(document.getElementById('cPareto'), { type: 'bar', data: { labels: p.map(x => x.l.substring(0, 10)), datasets: [{ data: p.map(x => x.v), backgroundColor: '#06b6d4' }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { color: '#94a3b8' } } } } });
+                cs.p = new Chart(document.getElementById('cPareto'), { 
+                    type: 'bar', 
+                    data: { 
+                        labels: p.map(x => x.l.substring(0, 10)), 
+                        datasets: [
+                            { 
+                                type: 'line',
+                                label: 'Meta Lucro',
+                                data: metasLucroData,
+                                borderColor: '#047857', // Verde escuro
+                                backgroundColor: 'transparent',
+                                borderDash: [5, 5],
+                                borderWidth: 2,
+                                pointRadius: 0
+                            },
+                            { 
+                                type: 'line',
+                                label: 'Meta Venda',
+                                data: metasVendaData,
+                                borderColor: '#f59e0b', // Laranja/Amarelo
+                                backgroundColor: 'transparent',
+                                borderDash: [5, 5],
+                                borderWidth: 2,
+                                pointRadius: 0
+                            },
+                            { 
+                                type: 'bar',
+                                label: 'Realizado (Venda)',
+                                data: p.map(x => x.v), 
+                                backgroundColor: '#06b6d4' 
+                            }
+                        ] 
+                    }, 
+                    options: { 
+                        indexAxis: 'y', 
+                        plugins: { legend: { display: true, labels: { color: '#94a3b8' } } }, 
+                        scales: { x: { ticks: { color: '#94a3b8' } }, y: { ticks: { color: '#94a3b8' } } } 
+                    } 
+                });
 
                 if (cs.m) cs.m.destroy();
                 cs.m = new Chart(document.getElementById('cMatrix'), { type: 'bubble', data: { datasets: [{ label: 'Lojas', data: mtx, backgroundColor: 'rgba(139, 92, 246, 0.4)' }] }, options: { scales: { x: { display: false }, y: { title: { display: true, text: 'Rentabilidade %', color: '#64748b' } } } } });
