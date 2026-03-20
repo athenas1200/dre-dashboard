@@ -272,8 +272,24 @@
         <div class="filters">
             <select class="filter-select" id="sel-filial" onchange="up()"></select>
             <select class="filter-select" id="sel-ano" onchange="up()">
+                <option value="todos">Todos os Anos</option>
                 <option value="2025">2025</option>
                 <option value="2026" selected>2026</option>
+            </select>
+            <select class="filter-select" id="sel-mes" onchange="up()">
+                <option value="todos" selected>Todos os Meses</option>
+                <option value="jan">Jan</option>
+                <option value="fev">Fev</option>
+                <option value="mar">Mar</option>
+                <option value="abr">Abr</option>
+                <option value="mai">Mai</option>
+                <option value="jun">Jun</option>
+                <option value="jul">Jul</option>
+                <option value="ago">Ago</option>
+                <option value="set">Set</option>
+                <option value="out">Out</option>
+                <option value="nov">Nov</option>
+                <option value="dez">Dez</option>
             </select>
         </div>
         <div class="nav">
@@ -411,7 +427,7 @@
             function up() {
                 const cod = document.getElementById('sel-filial').value;
                 const ano = document.getElementById('sel-ano').value;
-                const aK = ano === '2025' ? 'anterior' : 'atual';
+                const mesF = document.getElementById('sel-mes').value;
 
                 const ORD_RL = '13', ORD_CMV = '26', ORD_MB = '27', ORD_IMP = '5';
                 const ORD_PES = '56', ORD_ADM = '155', ORD_FIN = '166', ORD_RES = db.estrutura_dre[db.estrutura_dre.length - 1].ordem;
@@ -421,29 +437,38 @@
                 const lbs = [], dRL = [], dRes = [], dFix = [], dVar = [];
                 const mtx = [];
 
-                MS.forEach(m => {
-                    const lbl = `${m} ${ano}`;
-                    let mRL = 0, mRes = 0, mFix = 0, mVar = 0;
-                    fs.forEach(fID => {
-                        const d = db.dados[fID]?.[aK]?.[lbl] || {};
-                        const rl = d[ORD_RL] || 0, res = d[ORD_RES] || 0;
-                        const cmv = Math.abs(d[ORD_CMV] || 0), imp = Math.abs(d[ORD_IMP] || 0);
-                        const fix = Math.abs(d[ORD_PES] || 0) + Math.abs(d[ORD_ADM] || 0) + Math.abs(d[ORD_FIN] || 0);
+                const anosToRun = ano === 'todos' ? ['anterior', 'atual'] : [(ano === '2025' ? 'anterior' : 'atual')];
+                const mesesToRun = mesF === 'todos' ? MS : [mesF];
 
-                        mRL += rl; mRes += res; mFix += fix; mVar += (cmv + imp);
-                        tRL += rl; tRes += res; tMB += (d[ORD_MB] || 0);
-                        tV += (cmv + imp); tF += fix;
+                anosToRun.forEach(aK => {
+                    const yLbl = aK === 'anterior' ? '2025' : '2026';
+                    mesesToRun.forEach(m => {
+                        const lbl = `${m} ${yLbl}`;
+                        let mRL = 0, mRes = 0, mFix = 0, mVar = 0;
+                        fs.forEach(fID => {
+                            const d = db.dados[fID]?.[aK]?.[lbl] || {};
+                            const rl = d[ORD_RL] || 0, res = d[ORD_RES] || 0;
+                            const cmv = Math.abs(d[ORD_CMV] || 0), imp = Math.abs(d[ORD_IMP] || 0);
+                            const fix = Math.abs(d[ORD_PES] || 0) + Math.abs(d[ORD_ADM] || 0) + Math.abs(d[ORD_FIN] || 0);
+
+                            mRL += rl; mRes += res; mFix += fix; mVar += (cmv + imp);
+                            tRL += rl; tRes += res; tMB += (d[ORD_MB] || 0);
+                            tV += (cmv + imp); tF += fix;
+                        });
+                        lbs.push(lbl.toUpperCase());
+                        dRL.push(mRL); dRes.push(mRes); dFix.push(mFix); dVar.push(mVar);
                     });
-                    lbs.push(lbl.toUpperCase());
-                    dRL.push(mRL); dRes.push(mRes); dFix.push(mFix); dVar.push(mVar);
                 });
 
                 // Matrix data
                 Object.keys(db.dados).forEach((fID, i) => {
                     let frl = 0, fres = 0;
-                    MS.forEach(m => {
-                        const d = db.dados[fID]?.[aK]?.[`${m} ${ano}`] || {};
-                        frl += d[ORD_RL] || 0; fres += d[ORD_RES] || 0;
+                    anosToRun.forEach(aK => {
+                        const yLbl = aK === 'anterior' ? '2025' : '2026';
+                        mesesToRun.forEach(m => {
+                            const d = db.dados[fID]?.[aK]?.[`${m} ${yLbl}`] || {};
+                            frl += d[ORD_RL] || 0; fres += d[ORD_RES] || 0;
+                        });
                     });
                     if (frl > 0) mtx.push({ x: i, y: fres / frl * 100, r: Math.sqrt(frl) / 10, label: db.filiais[fID] });
                 });
@@ -472,14 +497,19 @@
                 const pe = (tF / ((tRL - tV) / tRL || 1));
                 document.getElementById('y-pe').innerText = f(pe);
 
-                rd(lbs, dRL, dRes, dFix, dVar, mtx, getPareto(ano));
+                rd(lbs, dRL, dRes, dFix, dVar, mtx, getPareto(anosToRun, mesesToRun));
             }
 
-            function getPareto(ano) {
+            function getPareto(anosToRun, mesesToRun) {
                 const list = [];
-                const ak = ano === '2025' ? 'anterior' : 'atual';
                 Object.keys(db.dados).forEach(fid => {
-                    let v = 0; MS.forEach(m => v += db.dados[fid]?.[ak]?.[`${m} ${ano}`]?.['13'] || 0);
+                    let v = 0; 
+                    anosToRun.forEach(aK => {
+                        const yLbl = aK === 'anterior' ? '2025' : '2026';
+                        mesesToRun.forEach(m => {
+                            v += db.dados[fid]?.[aK]?.[`${m} ${yLbl}`]?.['13'] || 0;
+                        });
+                    });
                     list.push({ l: db.filiais[fid], v });
                 });
                 return list.sort((a, b) => b.v - a.v).slice(0, 10);

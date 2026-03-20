@@ -338,7 +338,7 @@
                 </select>
                 <span class="ctrl-label">Ano:</span>
                 <select class="ctrl-select" id="sel-ano" onchange="renderDashboard()">
-                    <option value="todos">Todos (2025+2026)</option>
+                    <option value="todos">Todos os Anos</option>
                     <option value="2025">2025</option>
                     <option value="2026" selected>2026</option>
                 </select>
@@ -430,6 +430,10 @@
             });
             const pSet = new Set(Object.values(parentMap));
 
+            const rlOrdem = String(db.estrutura_dre.find(e => e.ordem == 13 || e.descritivo.includes("Receita Líquida"))?.ordem || 13);
+            const mbOrdem = String(db.estrutura_dre.find(e => e.descritivo.includes("Margem Bruta"))?.ordem || 27);
+            const resOrdem = String(db.estrutura_dre[db.estrutura_dre.length - 1].ordem);
+
             // Body
             let bodyHtml = '';
             let kpis = { rl: 0, mb: 0, res: 0 };
@@ -471,9 +475,9 @@
                 rowHtml += `<td class="col-perc">${(rTotal / totalRL * 100).toFixed(1)}%</td></tr>`;
                 bodyHtml += rowHtml;
 
-                if (id == '3') kpis.rl = rTotal;
-                if (id == '5') kpis.mb = rTotal;
-                if (id == '167') kpis.res = rTotal;
+                if (id === rlOrdem) kpis.rl = rTotal;
+                if (id === mbOrdem) kpis.mb = rTotal;
+                if (id === resOrdem) kpis.res = rTotal;
             });
             document.getElementById('table-body').innerHTML = bodyHtml;
             document.getElementById('kpi-row').innerHTML = `
