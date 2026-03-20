@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>DRE Premium Analytics | Consolidado</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&family=JetBrains+Mono:wght@500;600&display=swap');
+
+        :root {
+            --bg-body: #f8fafc;
+            --navy-deep: #0f172a;
+            --primary: #14b8a6;
+            --teal: #10b981;
+            --blue-accent: #2563eb;
+            --text-main: #1e293b;
+            --glass-border: rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, #134e4a 0%, #0f766e 50%, #115e59 100%);
+            padding: 15px 25px;
+            color: white;
+            border-bottom: 4px solid #14b8a6;
+            flex-shrink: 0;
+        }
+
+        .header-container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-sub {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .pill {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 0.65rem;
+            font-weight: 700;
+        }
+
+        .pill-teal {
+            background: rgba(20, 184, 166, 0.3);
+            border: 1px solid rgba(20, 184, 166, 0.5);
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .ctrl-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .ctrl-select {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .ctrl-select option {
+            color: #0f172a;
+        }
+
+        .btn-nav {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-export {
+            background: #0d9488;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 8px 15px;
+            min-width: 180px;
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 0.6rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+        }
+
+        .card-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .dashboard-main {
+            padding: 15px 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            flex-grow: 1;
+            display: flex;
+            min-height: 0;
+            position: relative;
+            border: 1px solid var(--glass-border);
+        }
+
+        .table-viewport {
+            overflow: auto;
+            flex-grow: 1;
+        }
+
+        .exec-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.8rem;
+        }
+
+        .exec-table th {
+            background: #0f172a;
+            color: white;
+            padding: 10px;
+            font-weight: 800;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            text-transform: uppercase;
+            font-size: 0.6rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .exec-table th:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 150;
+            background: #020617;
+            min-width: 400px;
+            text-align: left;
+        }
+
+        .th-filial {
+            cursor: pointer;
+        }
+
+        .th-filial:hover {
+            background: #1e293b;
+            color: #14b8a6;
+        }
+
+        .exec-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .exec-table td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 10;
+            background: white;
+            text-align: left;
+            border-right: 2px solid #cbd5e1;
+            min-width: 400px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        tr:nth-child(even) td:first-child {
+            background: #f8fafc;
+        }
+
+        .row-group {
+            background: #f8fafc;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .row-st td {
+            background: #e0f2fe !important;
+            color: #0369a1 !important;
+            font-weight: 800;
+        }
+
+        .val-neg {
+            color: #dc2626 !important;
+        }
+
+        .col-perc {
+            background: #f0fdf4 !important;
+            color: #166534 !important;
+            font-weight: 800;
+            border-left: 1px solid #dcfce7;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: #14b8a6;
+            color: white;
+            border-radius: 4px;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 8px;
+            font-size: 15px;
+            font-weight: 900;
+            user-select: none;
+        }
+
+        .toggle-btn.empty {
+            background: transparent;
+            cursor: default;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="main-header">
+        <div class="header-container">
+            <div class="header-top">
+                <div class="header-content">
+                    <h1>📊 DRE EXECUTIVO COMERCIAL</h1>
+                    <div class="header-sub">
+                        <span class="pill pill-teal" id="pill-periodo">Périodo —</span>
+                        <span class="pill">Consolidação Horizontal</span>
+                        <span class="pill">Auditoria: 100% OK</span>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-nav" onclick="window.location.href='index_meses.html'">📅 Evolução
+                        Mensal</button>
+                    <button class="btn-nav" style="background:#7c3aed;"
+                        onclick="window.location.href='analise_dre.html'">🧠 Análise DRE</button>
+                    <button class="btn-export" onclick="exportToExcel()">📥 Exportar Excel</button>
+                </div>
+            </div>
+            <div class="controls-row">
+                <span class="ctrl-label">Mês:</span>
+                <select class="ctrl-select" id="sel-mes" onchange="renderDashboard()">
+                    <option value="jan">Janeiro</option>
+                    <option value="fev" selected>Fevereiro</option>
+                    <option value="mar">Março</option>
+                    <option value="abr">Abril</option>
+                    <option value="mai">Maio</option>
+                    <option value="jun">Junho</option>
+                    <option value="jul">Julho</option>
+                    <option value="ago">Agosto</option>
+                    <option value="set">Setembro</option>
+                    <option value="out">Outubro</option>
+                    <option value="nov">Novembro</option>
+                    <option value="dez">Dezembro</option>
+                </select>
+                <span class="ctrl-label">Ano:</span>
+                <select class="ctrl-select" id="sel-ano" onchange="renderDashboard()">
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                </select>
+                <span class="ctrl-label">Filial:</span>
+                <select class="ctrl-select" id="sel-filial" onchange="renderDashboard()">
+                    <option value="todas">Todas as Filiais</option>
+                </select>
+            </div>
+            <div class="summary-cards" id="kpi-row"></div>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="table-card">
+            <div class="table-viewport">
+                <table class="exec-table">
+                    <thead id="table-head"></thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let db = null;
+
+        async function init() {
+            try {
+                const res = await fetch('dre_meses.json?v=' + Date.now());
+                db = await res.json();
+                const sel = document.getElementById('sel-filial');
+                Object.keys(db.filiais).sort((a, b) => parseInt(a) - parseInt(b)).forEach(cod => {
+                    const opt = document.createElement('option'); opt.value = cod;
+                    opt.textContent = `${cod} - ${db.filiais[cod]}`;
+                    sel.appendChild(opt);
+                });
+                renderDashboard();
+            } catch (e) { console.error(e); }
+        }
+
+        function toggle(btn, parentId) {
+            const exp = btn.dataset.exp === '1';
+            const children = document.querySelectorAll(`[data-parent="${parentId}"]`);
+            children.forEach(c => c.classList.toggle('hidden', exp));
+            btn.textContent = exp ? '+' : '−';
+            btn.dataset.exp = exp ? '0' : '1';
+        }
+
+        function renderDashboard() {
+            if (!db) return;
+            const mes = document.getElementById('sel-mes').value;
+            const ano = document.getElementById('sel-ano').value;
+            const fFil = document.getElementById('sel-filial').value;
+            const periodKey = ano === '2025' ? 'anterior' : 'atual';
+            const periodName = `${mes} ${ano}`;
+            document.getElementById('pill-periodo').innerText = periodName.toUpperCase();
+
+            const filiaisToShow = fFil === 'todas' ? Object.keys(db.filiais).sort((a, b) => parseInt(a) - parseInt(b)) : [fFil];
+
+            // Render Head
+            let headHtml = `<tr><th style="min-width:400px; left:0;">Descrição das Contas</th>`;
+            filiaisToShow.forEach(c => headHtml += `<th class="th-filial" onclick="window.location.href='index_meses.html?filial=${c}&periodo=atual'">${db.filiais[c] || c}</th>`);
+            headHtml += `<th>TOTAL</th><th class="col-perc">% RL</th></tr>`;
+            document.getElementById('table-head').innerHTML = headHtml;
+
+            // Parents
+            const parentMap = {}; let lastG = null;
+            db.estrutura_dre.forEach(r => {
+                if (String(r.plano3) === '0') lastG = String(r.ordem);
+                else if (lastG) parentMap[String(r.ordem)] = lastG;
+            });
+            const pSet = new Set(Object.values(parentMap));
+
+            // Body
+            let bodyHtml = '';
+            let kpis = { rl: 0, mb: 0, res: 0 };
+            let totalRL = 1;
+            const rlLine = db.estrutura_dre.find(e => e.ordem == 3 || e.descritivo.includes("Receita Líquida"));
+            if (rlLine) {
+                totalRL = 0;
+                filiaisToShow.forEach(c => totalRL += (db.dados[c]?.[periodKey]?.[periodName]?.[rlLine.ordem] || 0));
+                if (totalRL === 0) totalRL = 1;
+            }
+
+            db.estrutura_dre.forEach(row => {
+                const id = String(row.ordem);
+                const parent = parentMap[id];
+                const hasFils = pSet.has(id);
+                const isGroup = String(row.plano3) === '0';
+                const isST = row.descritivo.includes("(=)") || row.descritivo.includes("( - )");
+
+                let rowHtml = `<tr class="${isST ? 'row-st' : ''} ${isGroup ? 'row-group' : ''} ${parent ? 'hidden' : ''}" data-parent="${parent || ''}">`;
+                rowHtml += `<td style="padding-left: ${parent ? 40 : 15}px">`;
+                if (hasFils) rowHtml += `<span class="toggle-btn" onclick="toggle(this, '${id}')" data-exp="0">+</span>`;
+                else if (parent) rowHtml += `<span class="toggle-btn empty"></span>`;
+                rowHtml += `${row.descritivo}</td>`;
+
+                let rTotal = 0;
+                filiaisToShow.forEach(c => {
+                    const v = db.dados[c]?.[periodKey]?.[periodName]?.[id] || 0;
+                    rTotal += v;
+                    rowHtml += `<td class="${v < -0.01 ? 'val-neg' : ''}">${v ? v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}</td>`;
+                });
+                rowHtml += `<td class="${rTotal < -0.01 ? 'val-neg' : ''}">${rTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>`;
+                rowHtml += `<td class="col-perc">${(rTotal / totalRL * 100).toFixed(1)}%</td></tr>`;
+                bodyHtml += rowHtml;
+
+                if (id == '3') kpis.rl = rTotal;
+                if (id == '5') kpis.mb = rTotal;
+                if (id == '167') kpis.res = rTotal;
+            });
+            document.getElementById('table-body').innerHTML = bodyHtml;
+            document.getElementById('kpi-row').innerHTML = `
+                <div class="summary-card"><div class="card-title">Receita Líquida</div><div class="card-value">R$ ${kpis.rl.toLocaleString('pt-BR')}</div></div>
+                <div class="summary-card"><div class="card-title">Margem Bruta</div><div class="card-value">R$ ${kpis.mb.toLocaleString('pt-BR')}</div><div class="pill">${(kpis.mb / kpis.rl * 100).toFixed(1)}%</div></div>
+                <div class="summary-card"><div class="card-title">Resultado Líquido</div><div class="card-value">R$ ${kpis.res.toLocaleString('pt-BR')}</div><div class="pill">${(kpis.res / kpis.rl * 100).toFixed(1)}%</div></div>
+            `;
+        }
+
+        window.onload = init;
+        function exportToExcel() { XLSX.writeFile(XLSX.utils.table_to_sheet(document.querySelector(".exec-table")), "DRE_Consolidado.xlsx"); }
+    </script>
+</body>
+
+</html>

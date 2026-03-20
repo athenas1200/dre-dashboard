@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Elite Vision Analytics | Executive Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap');
+
+        :root {
+            --bg: #040712;
+            --surface: rgba(15, 23, 42, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary: #8b5cf6;
+            --secondary: #06b6d4;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --emerald: #10b981;
+            --rose: #f43f5e;
+            --amber: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #17153b 0%, var(--bg) 80%);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            backdrop-filter: blur(10px);
+            background: rgba(4, 7, 18, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo h1 {
+            font-family: 'Outfit';
+            font-weight: 900;
+            background: linear-gradient(to right, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .filter-select option {
+            background: #0f172a;
+            color: white;
+        }
+
+        .nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-nav {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            transition: 0.3s;
+        }
+
+        .btn-nav:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .dashboard {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 30px 50px;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 25px;
+        }
+
+        .glass {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 28px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .span-12 {
+            grid-column: span 12;
+        }
+
+        .span-8 {
+            grid-column: span 8;
+        }
+
+        .span-4 {
+            grid-column: span 4;
+        }
+
+        .stitle {
+            font-family: 'Outfit';
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background: rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+            font-size: 0.65rem;
+            padding: 4px 12px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* KPI Cards Section (White style from screenshot) */
+        .white-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .white-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            color: #1e293b;
+            border-top: 6px solid #ccc;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .white-title {
+            font-weight: 800;
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+
+        .white-val {
+            font-family: 'Outfit';
+            font-size: 2rem;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        .white-sub {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #94a3b8;
+        }
+
+        .white-plus {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #6366f1;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Structural Yellow Box */
+        .yellow-box {
+            background: #fff9c4;
+            border-radius: 28px;
+            padding: 40px;
+            margin-top: 40px;
+            color: #854d0e;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .struc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .struc-item {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid transparent;
+        }
+
+        .loading {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .spin {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: s 1s linear infinite;
+        }
+
+        @keyframes s {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loading" id="l">
+        <div class="spin"></div>
+        <p style="letter-spacing: 3px;">ELITE VISION ENGINE</p>
+    </div>
+
+    <header>
+        <div class="logo">
+            <h1>ELITE VISION ANALYTICS</h1>
+        </div>
+        <div class="filters">
+            <select class="filter-select" id="sel-filial" onchange="up()"></select>
+            <select class="filter-select" id="sel-ano" onchange="up()">
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+            </select>
+        </div>
+        <div class="nav">
+            <a href="index.html" class="btn-nav">🏢 CONSOLIDADO</a>
+            <a href="index_meses.html" class="btn-nav">📅 EVOLUÇÃO</a>
+        </div>
+    </header>
+
+    <div class="container dashboard">
+        <!-- FIRST ROW: TREND & PARETO -->
+        <div class="span-8 glass">
+            <div class="stitle">📈 Evolução Operacional <span class="badge">Performance Real</span></div>
+            <canvas id="cEvo" height="110"></canvas>
+        </div>
+        <div class="span-4 glass">
+            <div class="stitle">⚖️ Pareto 80/20 <span class="badge">Top Filiais</span></div>
+            <canvas id="cPareto" height="240"></canvas>
+        </div>
+
+        <!-- SECOND ROW: BUBBLE MATRIX -->
+        <div class="span-12 glass">
+            <div class="stitle">🎯 Matriz de Maturidade Estratégica <span class="badge">Growth vs Rentabilidade</span>
+            </div>
+            <canvas id="cMatrix" height="60"></canvas>
+        </div>
+
+        <!-- NEW SECTION: WHITE KPI CARDS (FROM SCREENSHOT) -->
+        <div class="span-12">
+            <h2 class="stitle" style="margin-top:40px;">💎 Visão Estrutural de Retail <span class="badge">Detalhamento
+                    Operacional</span></h2>
+
+            <div class="white-kpi-grid">
+                <div class="white-card" style="border-top-color: #10b981;">
+                    <div class="white-plus">+</div>
+                    <div class="white-title">Receita Líquida</div>
+                    <div class="white-val" id="w-rl">R$ 0</div>
+                    <div class="white-sub">100%</div>
+                </div>
+                <div class="white-card" id="w-res-c" style="border-top-color: #f43f5e;">
+                    <div class="white-plus">+</div>
+                    <div class="white-title" id="w-res-t">Prejuízo Líquido</div>
+                    <div class="white-val" id="w-res text">R$ 0</div>
+                    <div class="white-sub" id="w-res-p">0%</div>
+                </div>
+                <div class="white-card" style="border-top-color: #8b5cf6;">
+                    <div class="white-plus">+</div>
+                    <div class="white-title">Margem Bruta</div>
+                    <div class="white-val" id="w-mb text">R$ 0</div>
+                    <div class="white-sub" id="w-mb-p">0%</div>
+                </div>
+                <div class="white-card" style="border-top-color: #f59e0b;">
+                    <div class="white-plus">+</div>
+                    <div class="white-title">Despesas Fixas</div>
+                    <div class="white-val" id="w-fix text">R$ 0</div>
+                    <div class="white-sub" id="w-fix-p">0%</div>
+                </div>
+                <div class="white-card" style="border-top-color: #d946ef;">
+                    <div class="white-plus">+</div>
+                    <div class="white-title">Despesas Variáveis</div>
+                    <div class="white-val" id="w-var text">R$ 0</div>
+                    <div class="white-sub" id="w-var-p">0%</div>
+                </div>
+                <div class="white-card" style="border-top-color: #3b82f6;">
+                    <div class="white-plus">+</div>
+                    <div class="white-title">EBIT</div>
+                    <div class="white-val" id="w-ebit text">R$ 0</div>
+                    <div class="white-sub" id="w-ebit-p">0%</div>
+                </div>
+            </div>
+
+            <!-- YELLOW STRUCTURAL BOX -->
+            <div class="yellow-box">
+                <h3 style="font-family:'Outfit'; margin-bottom:25px; font-size:1.4rem;">📊 Análise Estrutural de Custos
+                </h3>
+                <div class="struc-grid">
+                    <div class="struc-item" style="border-color:#f59e0b;">
+                        <div class="white-title">Despesas Fixas</div>
+                        <div class="white-val" id="y-fix" style="color:#d97706">R$ 0</div>
+                        <div class="white-sub" id="y-fix-p">0% do faturamento</div>
+                    </div>
+                    <div class="struc-item" style="border-color:#d946ef;">
+                        <div class="white-title">Despesas Variáveis</div>
+                        <div class="white-val" id="y-var" style="color:#c026d3">R$ 0</div>
+                        <div class="white-sub" id="y-var-p">0% do faturamento</div>
+                    </div>
+                    <div class="struc-item" style="border-color:#3b82f6;">
+                        <div class="white-title">Ponto de Equilíbrio</div>
+                        <div class="white-val" id="y-pe" style="color:#2563eb">R$ 0</div>
+                        <div class="white-sub">Necessário para lucro zero</div>
+                    </div>
+                </div>
+            </div>
+            <!-- EVOLUTION SECTION (NEW DETAILS) -->
+            <div class="span-12 glass" style="margin-top: 30px;">
+                <div class="stitle">📈 Evolução de Receita Líquida <span class="badge">Performance Mensal</span></div>
+                <canvas id="cEvoRL" height="60"></canvas>
+            </div>
+
+            <div class="span-6 glass" style="margin-top: 30px;">
+                <div class="stitle">📉 Evolução de Despesas Fixas <span class="badge">Opex Mensal</span></div>
+                <canvas id="cEvoFix" height="120"></canvas>
+            </div>
+
+            <div class="span-6 glass" style="margin-top: 30px;">
+                <div class="stitle">📊 Evolução de Despesas Variáveis <span class="badge">Capex/Variav. Mensal</span>
+                </div>
+                <canvas id="cEvoVar" height="120"></canvas>
+            </div>
+        </div>
+
+        <script>
+            let db = null;
+            let cs = {};
+            const MS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+            async function init() {
+                try {
+                    const r = await fetch('dre_meses.json?v=' + Date.now());
+                    db = await r.json();
+                    const sel = document.getElementById('sel-filial');
+                    const optT = document.createElement('option'); optT.value = 'todas'; optT.textContent = 'CONSOLIDADO (34 LOJAS)';
+                    sel.appendChild(optT);
+                    Object.keys(db.filiais).sort((a, b) => parseInt(a) - parseInt(b)).forEach(c => {
+                        const o = document.createElement('option'); o.value = c;
+                        o.textContent = `${c} - ${db.filiais[c]}`;
+                        sel.appendChild(o);
+                    });
+                    up();
+                    document.getElementById('l').style.display = 'none';
+                } catch (e) { console.error(e); }
+            }
+
+            function f(v) { return "R$ " + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }); }
+
+            function up() {
+                const cod = document.getElementById('sel-filial').value;
+                const ano = document.getElementById('sel-ano').value;
+                const aK = ano === '2025' ? 'anterior' : 'atual';
+
+                const ORD_RL = '13', ORD_CMV = '26', ORD_MB = '27', ORD_IMP = '5';
+                const ORD_PES = '56', ORD_ADM = '155', ORD_FIN = '166', ORD_RES = db.estrutura_dre[db.estrutura_dre.length - 1].ordem;
+
+                let tRL = 0, tRes = 0, tMB = 0, tF = 0, tV = 0;
+                const fs = cod === 'todas' ? Object.keys(db.dados) : [cod];
+                const lbs = [], dRL = [], dRes = [], dFix = [], dVar = [];
+                const mtx = [];
+
+                MS.forEach(m => {
+                    const lbl = `${m} ${ano}`;
+                    let mRL = 0, mRes = 0, mFix = 0, mVar = 0;
+                    fs.forEach(fID => {
+                        const d = db.dados[fID]?.[aK]?.[lbl] || {};
+                        const rl = d[ORD_RL] || 0, res = d[ORD_RES] || 0;
+                        const cmv = Math.abs(d[ORD_CMV] || 0), imp = Math.abs(d[ORD_IMP] || 0);
+                        const fix = Math.abs(d[ORD_PES] || 0) + Math.abs(d[ORD_ADM] || 0) + Math.abs(d[ORD_FIN] || 0);
+
+                        mRL += rl; mRes += res; mFix += fix; mVar += (cmv + imp);
+                        tRL += rl; tRes += res; tMB += (d[ORD_MB] || 0);
+                        tV += (cmv + imp); tF += fix;
+                    });
+                    lbs.push(lbl.toUpperCase());
+                    dRL.push(mRL); dRes.push(mRes); dFix.push(mFix); dVar.push(mVar);
+                });
+
+                // Matrix data
+                Object.keys(db.dados).forEach((fID, i) => {
+                    let frl = 0, fres = 0;
+                    MS.forEach(m => {
+                        const d = db.dados[fID]?.[aK]?.[`${m} ${ano}`] || {};
+                        frl += d[ORD_RL] || 0; fres += d[ORD_RES] || 0;
+                    });
+                    if (frl > 0) mtx.push({ x: i, y: fres / frl * 100, r: Math.sqrt(frl) / 10, label: db.filiais[fID] });
+                });
+
+                // UI White Cards
+                document.getElementById('w-rl').innerText = f(tRL);
+                document.getElementById('w-res text').innerText = f(Math.abs(tRes));
+                document.getElementById('w-res-t').innerText = tRes >= 0 ? "Lucro Líquido" : "Prejuízo Líquido";
+                document.getElementById('w-res-c').style.borderTopColor = tRes >= 0 ? "#10b981" : "#f43f5e";
+                document.getElementById('w-res-p').innerText = (tRes / tRL * 100).toFixed(2) + "%";
+                document.getElementById('w-mb text').innerText = f(tMB);
+                document.getElementById('w-mb-p').innerText = (tMB / tRL * 100).toFixed(2) + "%";
+                document.getElementById('w-fix text').innerText = f(tF);
+                document.getElementById('w-fix-p').innerText = (tF / tRL * 100).toFixed(2) + "%";
+                document.getElementById('w-var text').innerText = f(tV);
+                document.getElementById('w-var-p').innerText = (tV / tRL * 100).toFixed(2) + "%";
+                const ebit = tRes + (tRL * 0.05);
+                document.getElementById('w-ebit text').innerText = f(ebit);
+                document.getElementById('w-ebit-p').innerText = (ebit / tRL * 100).toFixed(2) + "%";
+
+                // Yellow Box
+                document.getElementById('y-fix').innerText = f(tF);
+                document.getElementById('y-fix-p').innerText = (tF / tRL * 100).toFixed(2) + "% do faturamento";
+                document.getElementById('y-var').innerText = f(tV);
+                document.getElementById('y-var-p').innerText = (tV / tRL * 100).toFixed(2) + "% do faturamento";
+                const pe = (tF / ((tRL - tV) / tRL || 1));
+                document.getElementById('y-pe').innerText = f(pe);
+
+                rd(lbs, dRL, dRes, dFix, dVar, mtx, getPareto(ano));
+            }
+
+            function getPareto(ano) {
+                const list = [];
+                const ak = ano === '2025' ? 'anterior' : 'atual';
+                Object.keys(db.dados).forEach(fid => {
+                    let v = 0; MS.forEach(m => v += db.dados[fid]?.[ak]?.[`${m} ${ano}`]?.['13'] || 0);
+                    list.push({ l: db.filiais[fid], v });
+                });
+                return list.sort((a, b) => b.v - a.v).slice(0, 10);
+            }
+
+            function rd(lbs, rl, res, fix, vAr, mtx, p) {
+                if (cs.e) cs.e.destroy();
+                cs.e = new Chart(document.getElementById('cEvo'), {
+                    type: 'line', data: {
+                        labels: lbs, datasets: [
+                            { label: 'Receita', data: rl, borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.1)', fill: true, tension: 0.4 },
+                            { label: 'Margem', data: res, borderColor: '#10b981', tension: 0.4 }
+                        ]
+                    }, options: { plugins: { legend: { labels: { color: '#94a3b8' } } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }, x: { ticks: { color: '#64748b' } } } }
+                });
+
+                if (cs.p) cs.p.destroy();
+                cs.p = new Chart(document.getElementById('cPareto'), { type: 'bar', data: { labels: p.map(x => x.l.substring(0, 10)), datasets: [{ data: p.map(x => x.v), backgroundColor: '#06b6d4' }] }, options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { ticks: { color: '#94a3b8' } } } } });
+
+                if (cs.m) cs.m.destroy();
+                cs.m = new Chart(document.getElementById('cMatrix'), { type: 'bubble', data: { datasets: [{ label: 'Lojas', data: mtx, backgroundColor: 'rgba(139, 92, 246, 0.4)' }] }, options: { scales: { x: { display: false }, y: { title: { display: true, text: 'Rentabilidade %', color: '#64748b' } } } } });
+
+                // New Specific Evolutions
+                if (cs.rl) cs.rl.destroy();
+                cs.rl = new Chart(document.getElementById('cEvoRL'), { type: 'line', data: { labels: lbs, datasets: [{ label: 'Faturamento Líquido', data: rl, borderColor: '#8b5cf6', backgroundColor: 'rgba(139, 92, 246, 0.2)', fill: true }] }, options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } } } } });
+
+                if (cs.fix) cs.fix.destroy();
+                cs.fix = new Chart(document.getElementById('cEvoFix'), { type: 'bar', data: { labels: lbs, datasets: [{ label: 'Despesas Fixas', data: fix, backgroundColor: '#f59e0b' }] }, options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } } } } });
+
+                if (cs.var) cs.var.destroy();
+                cs.var = new Chart(document.getElementById('cEvoVar'), { type: 'bar', data: { labels: lbs, datasets: [{ label: 'Despesas Variáveis', data: vAr, backgroundColor: '#d946ef' }] }, options: { plugins: { legend: { display: false } }, scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }, x: { ticks: { color: '#64748b' } } } } });
+            }
+
+            window.onload = init;
+        </script>
+</body>
+
+</html>
